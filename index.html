@@ -109,6 +109,7 @@ html, body {
 <div id="desktop-block">
     <span style="font-size: 4rem;">🚫</span>
     <p style="margin-top:20px">USE UM DISPOSITIVO MÓVEL</p>
+    <p style="color: var(--cyan); margin: 10px 0;">CELULAR OU TABLET</p>
 </div>
 
 <div class="app">
@@ -116,6 +117,10 @@ html, body {
         <div style="text-align:center; padding: 50px 0;">
             <span style="font-size: 5rem;">👾</span>
             <h1 style="font-family: 'Press Start 2P'; color: var(--orange); margin-top: 20px; font-size: 1.1rem;">PAPÃO DE PALAVRAS</h1>
+            <p style="margin: 30px 0; font-size: 0.7rem; color: #aaa; line-height: 1.6;">
+                <strong style="color:var(--cyan)">Próprio:</strong> Inicial MAIÚSCULA<br>
+                <strong style="color:var(--green)">Comum:</strong> inicial minúscula
+            </p>
             <button class="btn-send" onclick="startGame()">JOGAR! 🚀</button>
         </div>
     </section>
@@ -130,7 +135,7 @@ html, body {
 
         <div class="arena">
             <div id="papao-sprite" class="papao">👾</div>
-            <div id="target-cat" style="font-family:'Press Start 2P'; font-size:0.55rem; margin-top:15px;"></div>
+            <div id="target-cat" style="font-family:'Press Start 2P'; font-size:0.55rem; margin-top:15px; letter-spacing:1px;"></div>
             <div class="word-display" id="word-display">???</div>
         </div>
 
@@ -139,25 +144,50 @@ html, body {
                 <button id="btn-p" class="type-btn" onclick="selectType('proprio')">PRÓPRIO</button>
                 <button id="btn-c" class="type-btn" onclick="selectType('comum')">COMUM</button>
             </div>
-            <input type="text" id="word-input" class="word-input" placeholder="Escreva aqui..." autocomplete="off">
+            <input type="text" id="word-input" class="word-input" placeholder="Escreva aqui..." autocomplete="off" autocapitalize="none">
             <button class="btn-send" onclick="handleVerify()">ENVIAR PALAVRA!</button>
         </div>
     </section>
 </div>
 
 <script>
-// INSTÂNCIA ÚNICA DO ÁUDIO (Melhor para performance)
-const memeAudio = new Audio('https://www.myinstants.com/media/sounds/tecnologia_robotica.mp3');
+// Áudio Global para o Meme
+const memeSom = new Audio('https://www.myinstants.com/media/sounds/tecnologia_robotica.mp3');
+
+// Sistema de Áudio Nativo (Beeps)
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playTone(freq, type, dur) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + dur);
+}
+
+// Objeto de Sons e Meme
+const sound = {
+    click: () => playTone(600, 'sine', 0.1),
+    win: () => {
+        memeSom.currentTime = 0;
+        memeSom.play().catch(e => console.log("Erro ao tocar áudio"));
+        playTone(500, 'square', 0.1); 
+    },
+    lose: () => { playTone(300, 'sawtooth', 0.1); setTimeout(()=>playTone(150, 'sawtooth', 0.3), 100); }
+};
 
 let gs = { score:0, lives:3, timeLeft:15, currentCat:'', selectedType:null, timerInterval:null };
 
 function startGame() {
-    // ESSENCIAL: Tocar e pausar o áudio no primeiro clique para "acordar" o som no celular
-    memeAudio.play().then(() => {
-        memeAudio.pause();
-        memeAudio.currentTime = 0;
-    }).catch(e => console.log("Áudio aguardando interação"));
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    // Inicia o áudio do meme no mudo para habilitar permissão no navegador
+    memeSom.play().then(() => {
+        memeSom.pause();
+        memeSom.currentTime = 0;
+    }).catch(e => console.log("Aguardando interação"));
 
+    sound.click();
     gs.score = 0; gs.lives = 3;
     document.getElementById('screen-intro').classList.remove('active');
     document.getElementById('screen-game').classList.add('active');
@@ -169,9 +199,11 @@ function newRound() {
     gs.timeLeft = 15;
     gs.selectedType = null;
     gs.currentCat = Math.random() > 0.5 ? 'proprio' : 'comum';
+    
     document.getElementById('word-input').value = '';
     document.getElementById('word-display').textContent = '???';
     document.getElementById('word-display').style.color = 'var(--yellow)';
+    
     document.getElementById('btn-p').className = 'type-btn';
     document.getElementById('btn-c').className = 'type-btn';
     
@@ -199,6 +231,7 @@ function updateHUD() {
 }
 
 function selectType(t) {
+    sound.click();
     gs.selectedType = t;
     document.getElementById('btn-p').className = t === 'proprio' ? 'type-btn active-p' : 'type-btn';
     document.getElementById('btn-c').className = t === 'comum' ? 'type-btn active-c' : 'type-btn';
@@ -206,45 +239,69 @@ function selectType(t) {
 
 function handleVerify() {
     const input = document.getElementById('word-input').value.trim();
-    if(!input || !gs.selectedType) return;
+    
+    if(!input) { alert("Escreva uma palavra!"); return; }
+    if(!gs.selectedType) { alert("Clique no botão PRÓPRIO ou COMUM!"); return; }
 
     const firstChar = input[0];
     const isUpper = firstChar === firstChar.toUpperCase() && firstChar !== firstChar.toLowerCase();
     
     let acerto = false;
-    if (gs.selectedType === gs.currentCat) {
-        if (gs.currentCat === 'proprio' && isUpper) acerto = true;
-        if (gs.currentCat === 'comum' && !isUpper) acerto = true;
+    let motivoErro = "";
+
+    if (gs.selectedType !== gs.currentCat) {
+        motivoErro = `Confusão! Era ${gs.currentCat.toUpperCase()}, mas você marcou ${gs.selectedType.toUpperCase()}.`;
+    } 
+    else {
+        if (gs.currentCat === 'proprio') {
+            if (isUpper) acerto = true;
+            else motivoErro = "Próprios precisam de letra MAIÚSCULA! (Ex: Pedro)";
+        } else {
+            if (!isUpper) acerto = true;
+            else motivoErro = "Comuns precisam de letra minúscula! (Ex: gato)";
+        }
     }
 
     if (acerto) successRound(input);
-    else failRound("Errou a regra!");
+    else failRound(motivoErro);
 }
 
 function successRound(word) {
     clearInterval(gs.timerInterval);
-    
-    // TOCA O MEME "TECNOLOGIA"
-    memeAudio.currentTime = 0;
-    memeAudio.play();
-
+    sound.win(); 
     gs.score += 10;
-    document.getElementById('word-display').textContent = word;
-    document.getElementById('word-display').style.color = 'var(--green)';
+    
+    const display = document.getElementById('word-display');
+    display.textContent = word;
+    display.style.color = 'var(--green)';
     document.getElementById('papao-sprite').classList.add('jump');
     
+    for(let i=0; i<12; i++) {
+        setTimeout(() => {
+            const clap = document.createElement('div');
+            clap.className = 'clap-emoji';
+            clap.textContent = ['👏', '✨', '💻', '🤖', '⭐'][Math.floor(Math.random()*5)];
+            clap.style.left = Math.random() * 80 + 10 + 'vw';
+            clap.style.top = Math.random() * 50 + 20 + 'vh';
+            document.body.appendChild(clap);
+            setTimeout(() => clap.remove(), 1000);
+        }, i * 60);
+    }
+
     setTimeout(() => {
         document.getElementById('papao-sprite').classList.remove('jump');
         newRound();
-    }, 1800);
+    }, 2000); // Aumentado um pouco para dar tempo de ouvir o som
 }
 
 function failRound(msg) {
     clearInterval(gs.timerInterval);
+    sound.lose();
     gs.lives--;
     alert(msg);
+    
     if(gs.lives <= 0) {
-        alert("FIM DE JOGO!");
+        alert("GAME OVER! Pontos: " + gs.score);
         location.reload();
     } else {
         newRound();
