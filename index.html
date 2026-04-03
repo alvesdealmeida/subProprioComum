@@ -2,1239 +2,253 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SubstantivoQuest — Papão Come Palavras</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SubstantivoQuest — Tecnologia!</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&family=Fredoka+One&display=swap" rel="stylesheet">
 <style>
-/* ─── Reset ─────────────────────────────────────────── */
+/* ─── Reset & Variáveis ──────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --dark:     #05050f;
-  --dark2:    #0a0a1f;
-  --cyan:     #00f5ff;
-  --pink:     #ff0080;
-  --yellow:   #ffee00;
-  --green:    #39ff14;
-  --purple:   #bf00ff;
-  --orange:   #ff8c00;
-  --card-bg:  rgba(255,255,255,0.03);
-  --border:   rgba(255,255,255,0.08);
+  --dark:      #05050f;
+  --cyan:      #00f5ff;
+  --pink:      #ff0080;
+  --yellow:    #ffee00;
+  --green:     #39ff14;
+  --orange:    #ff8c00;
+}
+
+/* ─── Restrição de Desktop ──────────────────────────── */
+#desktop-block {
+    display: none;
+    position: fixed; inset: 0; background: var(--dark);
+    z-index: 10000; color: white; text-align: center;
+    padding: 40px; flex-direction: column; justify-content: center; align-items: center;
+    font-family: 'Press Start 2P', cursive;
+}
+
+@media (min-width: 1025px) {
+    #desktop-block { display: flex; }
+    .app { display: none; }
 }
 
 html, body {
-  height: 100%;
-  background: var(--dark);
-  color: #fff;
-  font-family: 'Orbitron', sans-serif;
-  overflow-x: hidden;
-  cursor: none;
+  height: 100%; background: var(--dark);
+  color: #fff; font-family: 'Orbitron', sans-serif;
+  overflow-x: hidden; -webkit-tap-highlight-color: transparent;
 }
 
-/* ─── Custom cursor ──────────────────────────────────── */
-.cursor {
-  width: 16px; height: 16px;
-  border: 2px solid var(--cyan);
-  border-radius: 50%;
-  position: fixed;
-  pointer-events: none; z-index: 9999;
-  transform: translate(-50%,-50%);
-  transition: transform 0.08s, background 0.2s;
-  mix-blend-mode: difference;
-}
-.cursor.click { transform: translate(-50%,-50%) scale(2); background: var(--cyan); }
+.app { position: relative; z-index: 10; max-width: 860px; margin: 0 auto; padding: 20px; }
 
-/* ─── Scanlines ──────────────────────────────────────── */
-body::before {
-  content: '';
-  position: fixed; inset: 0;
-  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.13) 2px, rgba(0,0,0,0.13) 4px);
-  pointer-events: none; z-index: 200;
-  animation: scanMove 10s linear infinite;
-}
-@keyframes scanMove { from{background-position:0 0} to{background-position:0 100%} }
-
-/* ─── Stars & Grid ───────────────────────────────────── */
-.stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-.star {
-  position: absolute; background: #fff; border-radius: 50%;
-  animation: twinkle var(--d,3s) var(--dl,0s) ease-in-out infinite;
-}
-@keyframes twinkle { 0%,100%{opacity:0.1;transform:scale(1)} 50%{opacity:0.8;transform:scale(1.5)} }
-.grid-bg {
-  position: fixed; inset: 0; z-index: 0;
-  background-image: linear-gradient(rgba(0,245,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,245,255,0.04) 1px, transparent 1px);
-  background-size: 60px 60px;
-  animation: gridPulse 4s ease-in-out infinite;
-}
-@keyframes gridPulse { 0%,100%{opacity:.5} 50%{opacity:1} }
-
-/* ─── Layout ─────────────────────────────────────────── */
-.app {
-  position: relative; z-index: 10;
-  max-width: 860px; margin: 0 auto;
-  padding: 32px 20px 60px;
-}
-
-/* ─── Header ─────────────────────────────────────────── */
-header { text-align: center; margin-bottom: 36px; }
-.back-btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: transparent;
-  border: 1px solid rgba(0,245,255,0.25);
-  color: rgba(0,245,255,0.6);
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.5rem; padding: 8px 16px;
-  border-radius: 4px; cursor: none;
-  letter-spacing: 0.1em;
-  transition: all 0.2s;
-  margin-bottom: 24px;
-  text-decoration: none;
-}
-.back-btn:hover { color: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 12px rgba(0,245,255,0.3); }
-.logo-emoji {
-  font-size: 3.2rem; display: block;
-  animation: bounce 2.5s ease-in-out infinite;
-  filter: drop-shadow(0 0 16px #ff8c00);
-}
-@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-h1 {
-  font-family: 'Press Start 2P', monospace;
-  font-size: clamp(0.9rem, 2.5vw, 1.4rem);
-  background: linear-gradient(90deg, var(--orange), var(--yellow), var(--green));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  filter: drop-shadow(0 0 20px rgba(255,140,0,0.5));
-  animation: titleFlicker 6s ease-in-out infinite;
-  margin-top: 10px; letter-spacing: 0.08em;
-}
-@keyframes titleFlicker { 0%,94%,100%{opacity:1} 95%{opacity:.3} 97%{opacity:.9} 98%{opacity:.2} 99%{opacity:1} }
-.subtitle {
-  font-size: 0.55rem; color: var(--orange); letter-spacing: 0.35em;
-  margin-top: 8px; opacity: .7;
-  font-family: 'Press Start 2P', monospace;
-}
-
-/* ─── HUD bar ────────────────────────────────────────── */
+/* ─── HUD & Timer ────────────────────────────────────── */
 .hud {
-  display: flex; justify-content: space-between; align-items: center;
-  background: rgba(255,140,0,0.06);
-  border: 1px solid rgba(255,140,0,0.2);
-  border-radius: 6px; padding: 10px 20px;
-  margin-bottom: 28px;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.55rem; letter-spacing: 0.05em;
-  flex-wrap: wrap; gap: 10px;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  background: rgba(255,140,0,0.1); border: 1px solid var(--orange);
+  border-radius: 12px; padding: 15px; margin-bottom: 20px;
+  font-family: 'Press Start 2P', monospace; font-size: 0.6rem;
 }
-.hud-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.hud-label { color: rgba(255,255,255,0.3); font-size: 0.45rem; }
-.hud-val { color: #fff; font-size: 0.75rem; }
-.hud-val.orange { color: var(--orange); }
-.hud-val.green  { color: var(--green);  }
-.hud-val.yellow { color: var(--yellow); }
-.lives-row { display: flex; gap: 4px; font-size: 1rem; }
-.blink { animation: blink 1s step-end infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.hud-item { text-align: center; }
+.timer-box {
+    grid-column: span 3; margin-top: 10px;
+    background: rgba(255,255,255,0.1); height: 10px; border-radius: 5px; overflow: hidden;
+}
+#timer-bar { height: 100%; background: var(--cyan); width: 100%; transition: width 1s linear; }
 
-/* ─── Progress bar ───────────────────────────────────── */
-.prog-wrap {
-  margin-bottom: 28px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 4px; height: 8px; overflow: hidden;
-}
-.prog-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--orange), var(--yellow));
-  border-radius: 4px;
-  transition: width 0.5s ease;
-  box-shadow: 0 0 10px rgba(255,140,0,0.5);
-}
-
-/* ─── SCREENS ────────────────────────────────────────── */
-.screen { display: none; }
-.screen.active { display: block; }
-
-/* ─── Intro screen ───────────────────────────────────── */
-#screen-intro { text-align: center; }
-.intro-card {
-  background: var(--card-bg);
-  border: 1px solid rgba(255,140,0,0.2);
-  border-radius: 14px; padding: 36px 28px;
-  max-width: 640px; margin: 0 auto 32px;
-  backdrop-filter: blur(10px);
-}
-.intro-rules-title {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.65rem; color: var(--orange);
-  letter-spacing: 0.1em; margin-bottom: 24px;
-  text-shadow: 0 0 10px rgba(255,140,0,0.5);
-}
-.rule-item {
-  display: flex; align-items: flex-start; gap: 14px;
-  text-align: left; margin-bottom: 18px;
-  padding: 14px 16px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 8px;
-}
-.rule-icon { font-size: 1.8rem; flex-shrink: 0; }
-.rule-text { font-size: 0.72rem; color: rgba(255,255,255,0.75); line-height: 1.7; }
-.rule-text strong { color: #fff; font-weight: 900; }
-
-.diff-section { margin-bottom: 24px; }
-.diff-label {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.55rem; color: var(--cyan); letter-spacing: 0.1em; margin-bottom: 12px;
-}
-.diff-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-.diff-btn {
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.5);
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.5rem; padding: 10px 18px;
-  border-radius: 4px; cursor: none; letter-spacing: 0.08em;
-  transition: all 0.2s;
-}
-.diff-btn.active { border-color: var(--orange); color: var(--orange); box-shadow: 0 0 12px rgba(255,140,0,0.3); background: rgba(255,140,0,0.08); }
-.diff-btn:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
-
-.btn-start {
-  background: transparent;
-  border: 2px solid var(--orange);
-  color: var(--orange);
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.75rem; padding: 18px 48px;
-  border-radius: 6px; cursor: none;
-  letter-spacing: 0.1em;
-  transition: all 0.2s;
-  box-shadow: 0 0 20px rgba(255,140,0,0.3);
-  text-transform: uppercase;
-}
-.btn-start:hover {
-  background: var(--orange); color: var(--dark);
-  box-shadow: 0 0 40px rgba(255,140,0,0.6);
-  transform: scale(1.04);
-}
-
-/* ─── Game screen ────────────────────────────────────── */
-#screen-game {}
-
-/* Papão arena */
+/* ─── Arena ─────────────────────────────────────────── */
 .arena {
-  background: rgba(0,0,0,0.4);
-  border: 1px solid rgba(255,140,0,0.18);
-  border-radius: 16px;
-  padding: 28px 24px;
-  margin-bottom: 24px;
-  position: relative;
-  overflow: hidden;
-  min-height: 340px;
+  background: rgba(255,255,255,0.03); border: 2px solid rgba(255,140,0,0.2);
+  border-radius: 20px; padding: 30px; min-height: 250px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: relative; margin-bottom: 20px;
 }
-.arena-glow {
-  position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(ellipse at 50% 100%, rgba(255,140,0,0.08), transparent 60%);
+.papao { font-size: 6rem; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); user-select: none; }
+.papao.jump { transform: scale(1.3) translateY(-20px); }
+
+.word-display {
+    font-family: 'Fredoka One', cursive; font-size: 2.5rem;
+    margin: 20px 0; color: var(--yellow); text-shadow: 0 0 10px rgba(255,238,0,0.5);
 }
 
-/* ── Papão ── */
-.papao-wrap {
-  position: relative; width: 200px; height: 160px;
-  margin-bottom: 16px;
-  display: flex; align-items: center; justify-content: center;
-}
-.papao {
-  font-size: 7rem; line-height: 1;
-  display: block;
-  animation: papaoIdle 2s ease-in-out infinite;
-  filter: drop-shadow(0 0 20px rgba(255,140,0,0.5));
-  cursor: none;
-  user-select: none;
-  position: relative; z-index: 2;
-  transition: transform 0.2s;
-}
-@keyframes papaoIdle {
-  0%,100%{ transform: translateY(0) rotate(-2deg); }
-  50%    { transform: translateY(-8px) rotate(2deg); }
-}
-.papao.eat {
-  animation: papaoEat 0.5s ease forwards !important;
-}
-@keyframes papaoEat {
-  0%  { transform: scale(1); }
-  30% { transform: scale(1.4) rotate(-10deg); }
-  60% { transform: scale(0.9) rotate(5deg); }
-  100%{ transform: scale(1) rotate(0deg); }
-}
-.papao.sad {
-  animation: papaoSad 0.6s ease forwards !important;
-}
-@keyframes papaoSad {
-  0%  { transform: scale(1) rotate(0deg); }
-  25% { transform: scale(0.85) rotate(-8deg); }
-  75% { transform: scale(0.85) rotate(8deg); }
-  100%{ transform: scale(1) rotate(0deg); }
-}
-/* Mouth open/close */
-.mouth-open  { display: none; }
-.eating .mouth-default { display: none; }
-.eating .mouth-open    { display: inline; }
-
-/* Word bubble */
-.word-stage {
-  width: 100%;
-  display: flex; flex-direction: column; align-items: center; gap: 8px;
-  min-height: 90px; justify-content: center;
-}
-.word-card {
-  background: rgba(255,255,255,0.06);
-  border: 2px solid rgba(255,255,255,0.15);
-  border-radius: 12px;
-  padding: 16px 32px;
-  font-family: 'Fredoka One', cursive;
-  font-size: clamp(1.6rem, 4vw, 2.2rem);
-  color: #fff;
-  letter-spacing: 0.05em;
-  position: relative;
-  transition: all 0.3s;
-  white-space: nowrap;
-}
-.word-card.eaten {
-  animation: wordEaten 0.5s ease forwards;
-}
-@keyframes wordEaten {
-  0%  { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.15) translateY(-10px); opacity: 0.7; }
-  100%{ transform: scale(0) translateY(-40px); opacity: 0; }
-}
-.word-card.wrong-shake {
-  animation: wrongShake 0.5s ease;
-  border-color: var(--pink) !important;
-  box-shadow: 0 0 20px rgba(255,0,128,0.4);
-}
-@keyframes wrongShake {
-  0%,100%{transform:translateX(0)}
-  20%,60%{transform:translateX(-10px)}
-  40%,80%{transform:translateX(10px)}
-}
-.word-type-tag {
-  font-size: 0.6rem; font-family: 'Press Start 2P', monospace;
-  letter-spacing: 0.1em; opacity: 0.5; margin-top: 2px;
-  transition: all 0.3s;
-}
-
-/* Category instruction */
-.cat-instruction {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.6rem; letter-spacing: 0.1em;
-  margin-bottom: 20px;
-  text-align: center;
-  padding: 10px 20px;
-  border-radius: 6px;
-}
-.cat-instruction.proprio {
-  color: var(--cyan);
-  background: rgba(0,245,255,0.07);
-  border: 1px solid rgba(0,245,255,0.2);
-  text-shadow: 0 0 10px rgba(0,245,255,0.5);
-}
-.cat-instruction.comum {
-  color: var(--green);
-  background: rgba(57,255,20,0.07);
-  border: 1px solid rgba(57,255,20,0.2);
-  text-shadow: 0 0 10px rgba(57,255,20,0.5);
-}
-
-/* ─── Input zone ─────────────────────────────────────── */
-.input-zone {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 24px 20px;
-  margin-bottom: 20px;
-}
-.input-label {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.55rem; color: rgba(255,255,255,0.4);
-  letter-spacing: 0.1em; margin-bottom: 14px;
-  text-align: center;
-}
-
-/* Type selector */
-.type-selector {
-  display: flex; gap: 10px; margin-bottom: 16px;
-}
+/* ─── Botões & Inputs ───────────────────────────────── */
+.input-zone { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; }
+.type-selector { display: flex; gap: 10px; margin-bottom: 15px; }
 .type-btn {
-  flex: 1; padding: 14px 8px;
-  background: transparent;
-  border: 2px solid rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.4);
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.5rem; border-radius: 8px;
-  cursor: none; letter-spacing: 0.06em;
-  transition: all 0.25s; text-align: center;
-  text-transform: uppercase;
+    flex: 1; padding: 15px; border-radius: 10px; border: 2px solid #333;
+    background: #1a1a1a; color: #fff; font-family: 'Press Start 2P'; font-size: 0.5rem;
 }
-.type-btn span { display: block; font-size: 1.3rem; margin-bottom: 6px; }
-.type-btn.selected-proprio {
-  border-color: var(--cyan); color: var(--cyan);
-  background: rgba(0,245,255,0.1);
-  box-shadow: 0 0 16px rgba(0,245,255,0.25);
-}
-.type-btn.selected-comum {
-  border-color: var(--green); color: var(--green);
-  background: rgba(57,255,20,0.1);
-  box-shadow: 0 0 16px rgba(57,255,20,0.25);
-}
-.type-btn:hover:not(.selected-proprio):not(.selected-comum) {
-  border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.7);
-}
+.type-btn.active-p { border-color: var(--cyan); background: rgba(0,245,255,0.2); color: var(--cyan); }
+.type-btn.active-c { border-color: var(--green); background: rgba(57,255,20,0.2); color: var(--green); }
 
-/* Word input row */
-.word-row {
-  display: flex; gap: 10px;
-}
 .word-input {
-  flex: 1;
-  background: rgba(255,255,255,0.05);
-  border: 2px solid rgba(255,255,255,0.12);
-  border-radius: 8px;
-  color: #fff;
-  font-family: 'Fredoka One', cursive;
-  font-size: 1.2rem;
-  padding: 12px 18px;
-  outline: none;
-  transition: all 0.25s;
-  cursor: text;
+    width: 100%; padding: 15px; border-radius: 10px; border: none;
+    font-size: 1.2rem; margin-bottom: 10px; text-align: center;
 }
-.word-input:focus {
-  border-color: var(--orange);
-  box-shadow: 0 0 20px rgba(255,140,0,0.25);
-}
-.word-input::placeholder { color: rgba(255,255,255,0.2); font-size: 0.9rem; }
-.word-input.error { border-color: var(--pink) !important; box-shadow: 0 0 16px rgba(255,0,128,0.3); }
-.word-input.success { border-color: var(--green); box-shadow: 0 0 16px rgba(57,255,20,0.3); }
 
 .btn-send {
-  background: var(--orange);
-  border: none; color: var(--dark);
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.55rem; padding: 12px 20px;
-  border-radius: 8px; cursor: none;
-  letter-spacing: 0.05em;
-  transition: all 0.2s;
-  box-shadow: 0 0 16px rgba(255,140,0,0.4);
-  white-space: nowrap;
-}
-.btn-send:hover {
-  background: var(--yellow);
-  box-shadow: 0 0 28px rgba(255,238,0,0.5);
-  transform: scale(1.05);
-}
-.btn-send:disabled {
-  opacity: 0.4; cursor: not-allowed; transform: none;
+    width: 100%; padding: 15px; border-radius: 10px; border: none;
+    background: var(--orange); font-family: 'Press Start 2P'; cursor: pointer; color: #000;
 }
 
-/* ─── Feedback overlay ───────────────────────────────── */
-.feedback-panel {
-  display: none;
-  background: var(--card-bg);
-  border-radius: 14px;
-  padding: 22px 20px;
-  margin-bottom: 20px;
-  text-align: center;
-  animation: feedIn 0.35s cubic-bezier(.34,1.56,.64,1) both;
-}
-@keyframes feedIn { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
-.feedback-panel.correct {
-  border: 1px solid rgba(57,255,20,0.3);
-  background: rgba(57,255,20,0.06);
-}
-.feedback-panel.incorrect {
-  border: 1px solid rgba(255,0,128,0.3);
-  background: rgba(255,0,128,0.06);
-}
-.fb-big-icon { font-size: 3rem; display: block; margin-bottom: 8px; }
-.fb-title {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.75rem; margin-bottom: 8px;
-}
-.fb-title.ok  { color: var(--green);  text-shadow: 0 0 12px rgba(57,255,20,0.5);  }
-.fb-title.bad { color: var(--pink);   text-shadow: 0 0 12px rgba(255,0,128,0.5); }
-.fb-msg { font-size: 0.72rem; color: rgba(255,255,255,0.6); line-height: 1.6; }
-.fb-msg strong { color: #fff; }
-.fb-tip {
-  margin-top: 12px; padding: 10px 14px;
-  background: rgba(255,255,255,0.04);
-  border-radius: 8px;
-  font-size: 0.68rem; color: rgba(255,255,255,0.5);
-  line-height: 1.6;
-}
-.fb-tip strong { color: var(--yellow); }
-.btn-continue {
-  margin-top: 16px;
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.2);
-  color: rgba(255,255,255,0.6);
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.5rem; padding: 10px 24px;
-  border-radius: 4px; cursor: none; letter-spacing: 0.08em;
-  transition: all 0.2s;
-}
-.btn-continue:hover { border-color: var(--cyan); color: var(--cyan); box-shadow: 0 0 12px rgba(0,245,255,0.2); }
+.screen { display: none; animation: fadeIn 0.5s; }
+.screen.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* ─── Word history ───────────────────────────────────── */
-.history-wrap {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px 18px;
-  margin-bottom: 20px;
+.clap-emoji {
+    position: fixed; font-size: 2.5rem; pointer-events: none;
+    animation: clapFly 1s forwards; z-index: 1000;
 }
-.history-title {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.5rem; color: rgba(255,255,255,0.3);
-  letter-spacing: 0.1em; margin-bottom: 12px;
-  text-transform: uppercase;
-}
-.history-list {
-  display: flex; flex-wrap: wrap; gap: 8px; min-height: 36px;
-}
-.hist-chip {
-  font-size: 0.75rem; font-family: 'Fredoka One', cursive;
-  padding: 4px 14px; border-radius: 99px;
-  animation: chipPop 0.3s cubic-bezier(.34,1.56,.64,1) both;
-}
-@keyframes chipPop { from{opacity:0;transform:scale(0.5)} to{opacity:1;transform:scale(1)} }
-.hist-chip.ok  { background: rgba(57,255,20,0.15);  border: 1px solid rgba(57,255,20,0.4);  color: var(--green); }
-.hist-chip.bad { background: rgba(255,0,128,0.12); border: 1px solid rgba(255,0,128,0.3); color: var(--pink);  text-decoration: line-through; }
-
-/* ─── Result screen ──────────────────────────────────── */
-#screen-result { text-align: center; }
-.result-card {
-  background: var(--card-bg);
-  border: 1px solid rgba(255,140,0,0.2);
-  border-radius: 16px;
-  padding: 40px 28px;
-  max-width: 540px; margin: 0 auto 24px;
-  backdrop-filter: blur(10px);
-}
-.r-emoji { font-size: 5rem; display: block; margin-bottom: 16px; animation: bounceIn 0.7s cubic-bezier(.34,1.56,.64,1) both; }
-@keyframes bounceIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
-.r-title {
-  font-family: 'Press Start 2P', monospace;
-  font-size: clamp(0.75rem,2vw,1.1rem);
-  background: linear-gradient(90deg, var(--orange), var(--yellow));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  margin-bottom: 8px; letter-spacing: 0.05em;
-}
-.r-sub { font-size: 0.7rem; color: rgba(255,255,255,0.45); margin-bottom: 28px; }
-.r-stats {
-  display: grid; grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px; margin-bottom: 28px;
-}
-.r-stat {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px; padding: 16px 10px;
-}
-.r-stat-val {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 1.1rem; color: #fff; display: block; margin-bottom: 6px;
-}
-.r-stat-label { font-size: 0.5rem; color: rgba(255,255,255,0.3); letter-spacing: 0.1em; font-family: 'Press Start 2P', monospace; }
-.r-bar-wrap { margin-bottom: 24px; }
-.r-bar-label {
-  display: flex; justify-content: space-between;
-  font-size: 0.5rem; color: rgba(255,255,255,0.3);
-  font-family: 'Press Start 2P', monospace;
-  letter-spacing: 0.08em; margin-bottom: 8px;
-}
-.r-bar { height: 12px; background: rgba(255,255,255,0.06); border-radius: 99px; overflow: hidden; }
-.r-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--orange), var(--yellow));
-  border-radius: 99px;
-  transition: width 1.2s 0.4s cubic-bezier(.4,0,.2,1);
-  box-shadow: 0 0 12px rgba(255,140,0,0.5);
-}
-.r-words { margin-bottom: 24px; text-align: left; }
-.r-words-title {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.5rem; color: rgba(255,255,255,0.3);
-  letter-spacing: 0.1em; margin-bottom: 10px;
-}
-.r-word-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 12px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 8px; margin-bottom: 6px;
-  font-size: 0.82rem;
-}
-.r-word-row .rw { flex:1; font-family: 'Fredoka One', cursive; }
-.r-word-row .rtype { font-size: 0.55rem; font-family: 'Press Start 2P', monospace; }
-.rtype.proprio { color: var(--cyan); }
-.rtype.comum   { color: var(--green); }
-.r-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-.r-btn {
-  background: transparent;
-  border: 2px solid var(--orange); color: var(--orange);
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.6rem; padding: 14px 32px;
-  border-radius: 6px; cursor: none; letter-spacing: 0.08em;
-  transition: all 0.2s;
-  box-shadow: 0 0 16px rgba(255,140,0,0.25);
-}
-.r-btn:hover { background: var(--orange); color: var(--dark); box-shadow: 0 0 28px rgba(255,140,0,0.5); }
-.r-btn.sec { border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.4); box-shadow: none; }
-.r-btn.sec:hover { border-color: var(--cyan); color: var(--cyan); background: transparent; box-shadow: 0 0 14px rgba(0,245,255,0.2); }
-
-/* ─── Confetti ───────────────────────────────────────── */
-.confetti-piece {
-  position: fixed; pointer-events: none; z-index: 9998;
-  animation: confettiFall var(--cd, 1.5s) var(--cdl, 0s) ease-in forwards;
-  font-size: 1.2rem;
-}
-@keyframes confettiFall {
-  from { opacity: 1; transform: translate(0,0) rotate(0deg); }
-  to   { opacity: 0; transform: translate(var(--cx,0), 200px) rotate(var(--cr, 360deg)); }
-}
-
-/* ─── Responsive ─────────────────────────────────────── */
-@media(max-width: 520px) {
-  .type-selector { flex-direction: column; }
-  .r-stats { grid-template-columns: 1fr 1fr; }
-  .word-row { flex-direction: column; }
-  .hud { gap: 6px; }
-  .hud-item { min-width: 60px; }
+@keyframes clapFly {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-120px) scale(1.5); opacity: 0; }
 }
 </style>
 </head>
 <body>
 
-<div class="cursor" id="cursor"></div>
-<div class="stars"  id="stars"></div>
-<div class="grid-bg"></div>
+<div id="desktop-block">
+    <span style="font-size: 4rem;">🚫</span>
+    <p style="margin-top:20px">USE UM DISPOSITIVO MÓVEL</p>
+</div>
 
 <div class="app">
-
-  <!-- ══════════════════ INTRO ══════════════════ -->
-  <section class="screen active" id="screen-intro">
-
-    <header>
-      <a href="index7.html" class="back-btn">◀ VOLTAR AO MENU</a>
-      <span class="logo-emoji">👾</span>
-      <h1>PAPÃO COME PALAVRAS</h1>
-      <p class="subtitle">SUBSTANTIVOS PRÓPRIOS &amp; COMUNS</p>
-    </header>
-
-    <div class="intro-card">
-      <div class="intro-rules-title">📋 COMO JOGAR</div>
-
-      <div class="rule-item">
-        <div class="rule-icon">🔡</div>
-        <div class="rule-text">
-          Escolha se a palavra é <strong>Substantivo Próprio</strong> ou
-          <strong>Substantivo Comum</strong> e <strong>digite no campo</strong>.
+    <section class="screen active" id="screen-intro">
+        <div style="text-align:center; padding: 50px 0;">
+            <span style="font-size: 5rem;">👾</span>
+            <h1 style="font-family: 'Press Start 2P'; color: var(--orange); margin-top: 20px; font-size: 1.1rem;">PAPÃO DE PALAVRAS</h1>
+            <button class="btn-send" onclick="startGame()">JOGAR! 🚀</button>
         </div>
-      </div>
-      <div class="rule-item">
-        <div class="rule-icon">👾</div>
-        <div class="rule-text">
-          Se estiver <strong>correto</strong>, o <strong>Papão come a palavra</strong> com uma animação especial!
+    </section>
+
+    <section class="screen" id="screen-game">
+        <div class="hud">
+            <div class="hud-item">PONTOS<br><span id="h-score" style="color:var(--orange)">0</span></div>
+            <div class="hud-item">VIDAS<br><span id="h-lives">❤️❤️❤️</span></div>
+            <div class="hud-item">TEMPO<br><span id="h-timer" style="color:var(--cyan)">15s</span></div>
+            <div class="timer-box"><div id="timer-bar"></div></div>
         </div>
-      </div>
-      <div class="rule-item">
-        <div class="rule-icon">😢</div>
-        <div class="rule-text">
-          Se errar, aparece um <strong>rostinho triste</strong> com uma <strong>explicação</strong> para aprender com o erro.
+
+        <div class="arena">
+            <div id="papao-sprite" class="papao">👾</div>
+            <div id="target-cat" style="font-family:'Press Start 2P'; font-size:0.55rem; margin-top:15px;"></div>
+            <div class="word-display" id="word-display">???</div>
         </div>
-      </div>
-      <div class="rule-item">
-        <div class="rule-icon">📚</div>
-        <div class="rule-text">
-          <strong>Próprio:</strong> nome de pessoas, lugares, marcas (com maiúscula). <br>
-          <strong>Comum:</strong> nome genérico de seres e coisas.
+
+        <div class="input-zone">
+            <div class="type-selector">
+                <button id="btn-p" class="type-btn" onclick="selectType('proprio')">PRÓPRIO</button>
+                <button id="btn-c" class="type-btn" onclick="selectType('comum')">COMUM</button>
+            </div>
+            <input type="text" id="word-input" class="word-input" placeholder="Escreva aqui..." autocomplete="off">
+            <button class="btn-send" onclick="handleVerify()">ENVIAR PALAVRA!</button>
         </div>
-      </div>
-
-      <div class="diff-section">
-        <div class="diff-label">DIFICULDADE</div>
-        <div class="diff-btns">
-          <button class="diff-btn active" data-diff="easy"   onclick="setDiff(this,'easy')">😊 FÁCIL</button>
-          <button class="diff-btn"        data-diff="medium" onclick="setDiff(this,'medium')">🤔 MÉDIO</button>
-          <button class="diff-btn"        data-diff="hard"   onclick="setDiff(this,'hard')">🔥 DIFÍCIL</button>
-        </div>
-      </div>
-    </div>
-
-    <div style="text-align:center">
-      <button class="btn-start" onclick="startGame()">▶ INICIAR JOGO</button>
-    </div>
-
-  </section>
-
-  <!-- ══════════════════ GAME ══════════════════ -->
-  <section class="screen" id="screen-game">
-
-    <header>
-      <a href="index7.html" class="back-btn">◀ MENU</a>
-      <span class="logo-emoji" style="font-size:2rem">👾</span>
-      <h1 style="font-size:clamp(0.7rem,2vw,1rem)">PAPÃO COME PALAVRAS</h1>
-    </header>
-
-    <div class="hud">
-      <div class="hud-item">
-        <span class="hud-label">PONTOS</span>
-        <span class="hud-val orange" id="h-score">0</span>
-      </div>
-      <div class="hud-item">
-        <span class="hud-label">ACERTOS</span>
-        <span class="hud-val green" id="h-correct">0</span>
-      </div>
-      <div class="hud-item">
-        <span class="hud-label">ERROS</span>
-        <span class="hud-val" id="h-wrong" style="color:var(--pink)">0</span>
-      </div>
-      <div class="hud-item">
-        <span class="hud-label">VIDAS</span>
-        <div class="lives-row" id="h-lives">💚💚💚</div>
-      </div>
-      <div class="hud-item">
-        <span class="hud-label">RODADA</span>
-        <span class="hud-val yellow blink" id="h-round">1/10</span>
-      </div>
-    </div>
-
-    <div class="prog-wrap"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
-
-    <!-- Arena com Papão -->
-    <div class="arena" id="arena">
-      <div class="arena-glow"></div>
-      <div class="papao-wrap">
-        <span class="papao" id="papao">👾</span>
-      </div>
-
-      <div class="cat-instruction" id="cat-instruction"></div>
-
-      <div class="word-stage">
-        <div class="word-card" id="word-display">???</div>
-        <div class="word-type-tag" id="word-type-hint"></div>
-      </div>
-    </div>
-
-    <!-- Feedback panel -->
-    <div class="feedback-panel" id="feedback-panel">
-      <span class="fb-big-icon" id="fb-icon">😊</span>
-      <div class="fb-title" id="fb-title"></div>
-      <div class="fb-msg"   id="fb-msg"></div>
-      <div class="fb-tip"   id="fb-tip"></div>
-      <button class="btn-continue" onclick="continueGame()">▶ CONTINUAR</button>
-    </div>
-
-    <!-- Input zone -->
-    <div class="input-zone" id="input-zone">
-      <div class="input-label">ESCOLHA O TIPO E ESCREVA UM EXEMPLO</div>
-
-      <div class="type-selector">
-        <button class="type-btn" id="btn-proprio" onclick="selectType('proprio')">
-          <span>🏷️</span>
-          PRÓPRIO<br><small style="font-size:0.4rem;opacity:.6;display:block;margin-top:4px">Nomes específicos</small>
-        </button>
-        <button class="type-btn" id="btn-comum" onclick="selectType('comum')">
-          <span>📦</span>
-          COMUM<br><small style="font-size:0.4rem;opacity:.6;display:block;margin-top:4px">Nomes genéricos</small>
-        </button>
-      </div>
-
-      <div class="word-row">
-        <input type="text" class="word-input" id="word-input"
-               placeholder="Digite uma palavra..." autocomplete="off"
-               onkeydown="if(event.key==='Enter') sendWord()">
-        <button class="btn-send" id="btn-send" onclick="sendWord()" disabled>▶ ENVIAR</button>
-      </div>
-    </div>
-
-    <!-- History -->
-    <div class="history-wrap">
-      <div class="history-title">▸ PALAVRAS USADAS</div>
-      <div class="history-list" id="history-list"><span style="font-size:.65rem;color:rgba(255,255,255,.2)">nenhuma ainda...</span></div>
-    </div>
-
-  </section>
-
-  <!-- ══════════════════ RESULT ══════════════════ -->
-  <section class="screen" id="screen-result">
-    <div class="result-card">
-      <span class="r-emoji" id="r-emoji">🏆</span>
-      <div class="r-title" id="r-title">INCRÍVEL!</div>
-      <div class="r-sub"   id="r-sub">Você dominou os substantivos!</div>
-
-      <div class="r-stats">
-        <div class="r-stat">
-          <span class="r-stat-val" id="r-score">0</span>
-          <span class="r-stat-label">PONTOS</span>
-        </div>
-        <div class="r-stat">
-          <span class="r-stat-val" id="r-corrects">0</span>
-          <span class="r-stat-label">ACERTOS</span>
-        </div>
-        <div class="r-stat">
-          <span class="r-stat-val" id="r-pct-val">0%</span>
-          <span class="r-stat-label">APROVEIT.</span>
-        </div>
-      </div>
-
-      <div class="r-bar-wrap">
-        <div class="r-bar-label">
-          <span>DESEMPENHO</span>
-          <span id="r-pct-label">0%</span>
-        </div>
-        <div class="r-bar"><div class="r-fill" id="r-fill" style="width:0%"></div></div>
-      </div>
-
-      <div class="r-words">
-        <div class="r-words-title">▸ PALAVRAS DESTA RODADA</div>
-        <div id="r-words-list"></div>
-      </div>
-
-      <div class="r-actions">
-        <button class="r-btn" onclick="startGame()">🔄 JOGAR NOVAMENTE</button>
-        <button class="r-btn sec" onclick="showScreen('intro')">🏠 MENU</button>
-      </div>
-    </div>
-  </section>
-
-</div><!-- /.app -->
+    </section>
+</div>
 
 <script>
-/* ══════════════════════════════════════════════════
-   PAPÃO COME PALAVRAS — Game Logic
-══════════════════════════════════════════════════ */
+// INSTÂNCIA ÚNICA DO ÁUDIO (Melhor para performance)
+const memeAudio = new Audio('https://www.myinstants.com/media/sounds/tecnologia_robotica.mp3');
 
-// ── Stars ─────────────────────────────────────────
-(function(){
-  const layer = document.getElementById('stars');
-  for(let i=0;i<110;i++){
-    const s=document.createElement('div'); s.className='star';
-    const sz=Math.random()*2.4+0.4;
-    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*3}s;--dl:${Math.random()*5}s`;
-    layer.appendChild(s);
-  }
-})();
+let gs = { score:0, lives:3, timeLeft:15, currentCat:'', selectedType:null, timerInterval:null };
 
-// ── Cursor ────────────────────────────────────────
-const cur = document.getElementById('cursor');
-document.addEventListener('mousemove', e=>{ cur.style.left=e.clientX+'px'; cur.style.top=e.clientY+'px'; });
-document.addEventListener('mousedown', ()=>cur.classList.add('click'));
-document.addEventListener('mouseup',   ()=>cur.classList.remove('click'));
+function startGame() {
+    // ESSENCIAL: Tocar e pausar o áudio no primeiro clique para "acordar" o som no celular
+    memeAudio.play().then(() => {
+        memeAudio.pause();
+        memeAudio.currentTime = 0;
+    }).catch(e => console.log("Áudio aguardando interação"));
 
-// ── Word bank ─────────────────────────────────────
-// Each entry: { word, type: 'proprio'|'comum', tip }
-const WORDBANK_PROPRIO = [
-  "Brasil","Amazonas","Jesus","Maria","Carlos","Curitiba","Europa","Nilo","Atlântico","Deus",
-  "África","Buenos Aires","Pedro","Lucas","Ana","São Paulo","Rio de Janeiro","Bahia","Paraná","Minas Gerais",
-  "Pará","Goiás","França","Itália","Japão","China","México","Chile","Argentina","Colômbia",
-  "Recife","Salvador","Fortaleza","Manaus","Natal","Ceará","Paraíba","Sergipe","Alagoas","Piauí",
-  "Tiradentes","Getúlio","Santos Dumont","Machado","Caxias","Maranhão","Tocantins","Acre","Rondônia","Roraima",
-  "Antártica","Everest","Niterói","Vitória","Florianópolis","Belém","Teresina","Maceió","Palmas","Porto Alegre",
-  "Mediterrâneo","Pacífico","Amazonas","Tigre","Eufrates","Danúbio","Tâmisa","Ganges","Mississippi","Volga",
-  "Adão","Eva","Moisés","Noé","Davi","Salomão","Beatriz","Fernanda","Rafael","Gabriela"
-];
-
-const WORDBANK_COMUM = [
-  "cidade","país","menino","cachorro","casa","escola","flor","livro","mesa","carro",
-  "árvore","rio","montanha","pássaro","peixe","gato","cavalo","menina","homem","mulher",
-  "criança","professor","médico","engenheiro","artista","cantor","atleta","cientista","músico","pintor",
-  "oceano","lago","ilha","floresta","deserto","praia","campo","colina","vale","planície",
-  "fruta","legume","animal","planta","inseto","réptil","mamífero","ave","flor","semente",
-  "computador","telefone","televisão","cadeira","janela","porta","telhado","parede","chão","teto",
-  "lápis","borracha","caderno","mochila","caneta","régua","tesoura","cola","papel","pincel",
-  "pão","leite","arroz","feijão","carne","frango","peixe","maçã","banana","laranja",
-  "rua","avenida","bairro","praça","parque","museu","hospital","banco","loja","restaurante",
-  "amigo","colega","vizinho","familiar","pai","mãe","irmão","tio","avó","primo"
-];
-
-// ── Game state ────────────────────────────────────
-let diff = 'easy';
-let gs   = {};
-
-const LIVES_MAP  = { easy:5, medium:4, hard:3 };
-const ROUNDS_MAP = { easy:8, medium:10, hard:12 };
-const POINTS_OK  = { easy:10, medium:15, hard:20 };
-
-// ── Utils ─────────────────────────────────────────
-const ri  = (a,b)=>Math.floor(Math.random()*(b-a+1))+a;
-const cap = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
-
-function normalize(s){
-  return s.trim().toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    gs.score = 0; gs.lives = 3;
+    document.getElementById('screen-intro').classList.remove('active');
+    document.getElementById('screen-game').classList.add('active');
+    newRound();
 }
 
-function setDiff(btn, d){
-  document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active'); diff=d;
+function newRound() {
+    clearInterval(gs.timerInterval);
+    gs.timeLeft = 15;
+    gs.selectedType = null;
+    gs.currentCat = Math.random() > 0.5 ? 'proprio' : 'comum';
+    document.getElementById('word-input').value = '';
+    document.getElementById('word-display').textContent = '???';
+    document.getElementById('word-display').style.color = 'var(--yellow)';
+    document.getElementById('btn-p').className = 'type-btn';
+    document.getElementById('btn-c').className = 'type-btn';
+    
+    const targetLabel = document.getElementById('target-cat');
+    targetLabel.textContent = `VEZ DO SUBSTANTIVO: ${gs.currentCat.toUpperCase()}`;
+    targetLabel.style.color = gs.currentCat === 'proprio' ? 'var(--cyan)' : 'var(--green)';
+    
+    updateHUD();
+    startTimer();
 }
 
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('screen-'+id).classList.add('active');
+function startTimer() {
+    gs.timerInterval = setInterval(() => {
+        gs.timeLeft--;
+        updateHUD();
+        if(gs.timeLeft <= 0) failRound("O tempo acabou! ⏰");
+    }, 1000);
 }
 
-// ── Generate challenge for round ──────────────────
-// The round shows a CATEGORY prompt and the student must type a word of that category
-function generateRound(){
-  // Alternate or random category
-  const isOwn = Math.random() < 0.5;
-  const category = isOwn ? 'proprio' : 'comum';
-  const pool = isOwn ? WORDBANK_PROPRIO : WORDBANK_COMUM;
-
-  // Pick hints (example answers, shown in tip only)
-  const hints = [];
-  while(hints.length<3){ const w=pool[ri(0,pool.length-1)]; if(!hints.includes(w)) hints.push(w); }
-
-  return { category, hints, pool };
+function updateHUD() {
+    document.getElementById('h-score').textContent = gs.score;
+    document.getElementById('h-lives').textContent = "❤️".repeat(gs.lives);
+    document.getElementById('h-timer').textContent = gs.timeLeft + "s";
+    document.getElementById('timer-bar').style.width = (gs.timeLeft / 15 * 100) + "%";
 }
 
-// ── Start game ────────────────────────────────────
-function startGame(){
-  gs = {
-    score: 0, correct: 0, wrong: 0,
-    lives: LIVES_MAP[diff],
-    totalRounds: ROUNDS_MAP[diff],
-    round: 0,
-    history: [],          // {word, type, ok}
-    usedWords: new Set(),
-    selectedType: null,
-    currentRound: null,
-    answered: false,
-  };
-  showScreen('game');
-  document.getElementById('history-list').innerHTML = '<span style="font-size:.65rem;color:rgba(255,255,255,.2)">nenhuma ainda...</span>';
-  updateHUD();
-  hideFeedback();
-  loadRound();
+function selectType(t) {
+    gs.selectedType = t;
+    document.getElementById('btn-p').className = t === 'proprio' ? 'type-btn active-p' : 'type-btn';
+    document.getElementById('btn-c').className = t === 'comum' ? 'type-btn active-c' : 'type-btn';
 }
 
-// ── Load round ────────────────────────────────────
-function loadRound(){
-  if(gs.round >= gs.totalRounds){ showResult(); return; }
+function handleVerify() {
+    const input = document.getElementById('word-input').value.trim();
+    if(!input || !gs.selectedType) return;
 
-  gs.answered = false;
-  gs.selectedType = null;
-  gs.currentRound = generateRound();
+    const firstChar = input[0];
+    const isUpper = firstChar === firstChar.toUpperCase() && firstChar !== firstChar.toLowerCase();
+    
+    let acerto = false;
+    if (gs.selectedType === gs.currentCat) {
+        if (gs.currentCat === 'proprio' && isUpper) acerto = true;
+        if (gs.currentCat === 'comum' && !isUpper) acerto = true;
+    }
 
-  // UI reset
-  const inp = document.getElementById('word-input');
-  inp.value = ''; inp.className='word-input'; inp.disabled=false;
-  document.getElementById('btn-send').disabled = true;
-  document.getElementById('btn-proprio').className='type-btn';
-  document.getElementById('btn-comum').className='type-btn';
-  hideFeedback();
-
-  // Category instruction
-  const ci = document.getElementById('cat-instruction');
-  if(gs.currentRound.category==='proprio'){
-    ci.className='cat-instruction proprio';
-    ci.innerHTML='🏷️ ESCREVA UM <strong>SUBSTANTIVO PRÓPRIO</strong>';
-  } else {
-    ci.className='cat-instruction comum';
-    ci.innerHTML='📦 ESCREVA UM <strong>SUBSTANTIVO COMUM</strong>';
-  }
-
-  // Word display shows "???"
-  const wd = document.getElementById('word-display');
-  wd.textContent='???';
-  wd.style.cssText='';
-  wd.className='word-card';
-
-  document.getElementById('word-type-hint').textContent='';
-
-  // Papão idle
-  const papao = document.getElementById('papao');
-  papao.className='papao';
-  papao.style.animation='';
-
-  updateHUD();
+    if (acerto) successRound(input);
+    else failRound("Errou a regra!");
 }
 
-// ── Select type ───────────────────────────────────
-function selectType(t){
-  gs.selectedType = t;
-  document.getElementById('btn-proprio').className = t==='proprio' ? 'type-btn selected-proprio' : 'type-btn';
-  document.getElementById('btn-comum').className   = t==='comum'   ? 'type-btn selected-comum'   : 'type-btn';
-  checkSendReady();
+function successRound(word) {
+    clearInterval(gs.timerInterval);
+    
+    // TOCA O MEME "TECNOLOGIA"
+    memeAudio.currentTime = 0;
+    memeAudio.play();
+
+    gs.score += 10;
+    document.getElementById('word-display').textContent = word;
+    document.getElementById('word-display').style.color = 'var(--green)';
+    document.getElementById('papao-sprite').classList.add('jump');
+    
+    setTimeout(() => {
+        document.getElementById('papao-sprite').classList.remove('jump');
+        newRound();
+    }, 1800);
 }
 
-document.getElementById('word-input').addEventListener('input', checkSendReady);
-
-function checkSendReady(){
-  const val = document.getElementById('word-input').value.trim();
-  const ready = val.length >= 2 && gs.selectedType !== null && !gs.answered;
-  document.getElementById('btn-send').disabled = !ready;
-}
-
-// ── Send word ─────────────────────────────────────
-function sendWord(){
-  if(gs.answered) return;
-  const raw  = document.getElementById('word-input').value.trim();
-  const word = raw;
-  const normWord = normalize(word);
-
-  if(word.length < 2){ showInputError('Palavra muito curta!'); return; }
-  if(gs.usedWords.has(normWord)){ showInputError('Palavra já usada!'); return; }
-  if(!gs.selectedType){ return; }
-
-  gs.answered = true;
-  gs.usedWords.add(normWord);
-  document.getElementById('btn-send').disabled = true;
-  document.getElementById('word-input').disabled = true;
-
-  const cat = gs.currentRound.category;
-  const isCorrectType = gs.selectedType === cat;
-
-  // Validate: is the word in the correct pool?
-  const normPool = gs.currentRound.pool.map(normalize);
-  const inPool   = normPool.includes(normWord);
-
-  // Acceptance logic:
-  // The word must be the right type AND must appear in pool OR follow simple rules
-  // Additional heuristic for próprio: starts with capital (original)
-  let accepted = false;
-  if(isCorrectType){
-    if(inPool){
-      accepted = true;
+function failRound(msg) {
+    clearInterval(gs.timerInterval);
+    gs.lives--;
+    alert(msg);
+    if(gs.lives <= 0) {
+        alert("FIM DE JOGO!");
+        location.reload();
     } else {
-      // Heuristic: for próprio, must start with uppercase (in raw input)
-      if(cat === 'proprio' && word[0] === word[0].toUpperCase() && word[0] !== word[0].toLowerCase()){
-        accepted = true;
-      }
-      // For comum, check it doesn't start with uppercase (simple rule)
-      if(cat === 'comum' && !(word[0] === word[0].toUpperCase() && word[0] !== word[0].toLowerCase())){
-        accepted = true;
-      }
+        newRound();
     }
-  }
-
-  // Show word in display
-  const wd = document.getElementById('word-display');
-  wd.textContent = word;
-
-  gs.history.push({ word, type: gs.selectedType, category: cat, ok: accepted });
-  gs.round++;
-
-  if(accepted){
-    // ✅ Correct
-    gs.score   += POINTS_OK[diff] * (gs.correct >= 3 ? 2 : 1);
-    gs.correct++;
-
-    wd.className='word-card';
-    wd.style.color = cat==='proprio' ? 'var(--cyan)' : 'var(--green)';
-    wd.style.borderColor = cat==='proprio' ? 'var(--cyan)' : 'var(--green)';
-    wd.style.boxShadow   = cat==='proprio' ? '0 0 20px rgba(0,245,255,0.35)' : '0 0 20px rgba(57,255,20,0.35)';
-
-    const typeLabel = cat==='proprio'?'SUBSTANTIVO PRÓPRIO':'SUBSTANTIVO COMUM';
-    document.getElementById('word-type-hint').textContent = '✔ '+typeLabel;
-    document.getElementById('word-type-hint').style.color = cat==='proprio'?'var(--cyan)':'var(--green)';
-
-    setTimeout(()=>{
-      wd.classList.add('eaten');
-      animatePapao('eat');
-    }, 400);
-
-    setTimeout(()=>{
-      addHistoryChip(word, true);
-      updateHUD();
-      showFeedbackCorrect(word, cat);
-    }, 900);
-
-  } else {
-    // ❌ Wrong
-    gs.wrong++;
-    gs.lives = Math.max(0, gs.lives-1);
-
-    wd.classList.add('wrong-shake');
-    wd.style.color = 'var(--pink)';
-    animatePapao('sad');
-
-    setTimeout(()=>{
-      addHistoryChip(word, false);
-      updateHUD();
-      showFeedbackWrong(word, cat, gs.selectedType, isCorrectType, inPool);
-    }, 700);
-
-    if(gs.lives <= 0){
-      setTimeout(()=> showResult(), 2200);
-    }
-  }
-}
-
-function showInputError(msg){
-  const inp = document.getElementById('word-input');
-  inp.classList.add('error');
-  inp.placeholder = msg;
-  setTimeout(()=>{ inp.classList.remove('error'); inp.placeholder='Digite uma palavra...'; }, 1500);
-}
-
-// ── Papão animations ──────────────────────────────
-function animatePapao(mode){
-  const p = document.getElementById('papao');
-  p.className = 'papao';
-  p.offsetHeight; // reflow
-  if(mode==='eat'){
-    p.classList.add('eat');
-    p.textContent = '😮';
-    setTimeout(()=>{ p.textContent='👾'; p.className='papao'; },700);
-  } else if(mode==='sad'){
-    p.classList.add('sad');
-    p.textContent = '😢';
-    setTimeout(()=>{ p.textContent='👾'; p.className='papao'; },1000);
-  }
-}
-
-// ── Feedback ──────────────────────────────────────
-function hideFeedback(){
-  const fp = document.getElementById('feedback-panel');
-  fp.style.display='none'; fp.className='feedback-panel';
-  document.getElementById('input-zone').style.display='block';
-}
-
-function showFeedbackCorrect(word, cat){
-  const msgs = ['ARRASOU! 🔥','INCRÍVEL! ⭐','CORRETO! 🎯','SHOW DE BOLA! 🚀','PERFEITO! 💡'];
-  const msg  = msgs[ri(0,msgs.length-1)];
-  const def  = cat==='proprio'
-    ? `<strong>${word}</strong> é um <strong>substantivo próprio</strong> — nomeia um ser específico e único.`
-    : `<strong>${word}</strong> é um <strong>substantivo comum</strong> — nomeia um ser de forma genérica.`;
-
-  document.getElementById('fb-icon').textContent  = '😄';
-  document.getElementById('fb-title').className   = 'fb-title ok';
-  document.getElementById('fb-title').textContent = msg;
-  document.getElementById('fb-msg').innerHTML     = def;
-  document.getElementById('fb-tip').innerHTML     = `<strong>💡 Dica:</strong> ${getTip(cat)}`;
-
-  const fp = document.getElementById('feedback-panel');
-  fp.className='feedback-panel correct';
-  fp.style.display='block';
-  document.getElementById('input-zone').style.display='none';
-
-  spawnConfetti();
-}
-
-function showFeedbackWrong(word, cat, selected, isCorrectType, inPool){
-  let title, msg, tip;
-  if(!isCorrectType){
-    title = 'TIPO ERRADO! 😢';
-    const correct = cat==='proprio'?'PRÓPRIO':'COMUM';
-    const given   = selected==='proprio'?'PRÓPRIO':'COMUM';
-    msg = `Você escolheu <strong>${given}</strong>, mas a tarefa era escrever um <strong>${correct}</strong>.`;
-    tip = getTip(cat);
-  } else if(!inPool){
-    title = 'PALAVRA NÃO RECONHECIDA 😕';
-    msg = `"<strong>${word}</strong>" não está na nossa lista. Tente uma palavra mais conhecida!`;
-    tip = `Exemplos de ${cat==='proprio'?'próprios':'comuns'}: <strong>${gs.currentRound.hints.join(', ')}</strong>`;
-  } else {
-    title = 'QUASE LÁ! 😢';
-    msg = `"<strong>${word}</strong>" não combina com o tipo escolhido.`;
-    tip = getTip(cat);
-  }
-
-  document.getElementById('fb-icon').textContent  = '😢';
-  document.getElementById('fb-title').className   = 'fb-title bad';
-  document.getElementById('fb-title').textContent = title;
-  document.getElementById('fb-msg').innerHTML     = msg;
-  document.getElementById('fb-tip').innerHTML     = `<strong>📖 Lembre-se:</strong> ${tip}`;
-
-  const fp = document.getElementById('feedback-panel');
-  fp.className='feedback-panel incorrect';
-  fp.style.display='block';
-  document.getElementById('input-zone').style.display='none';
-}
-
-function getTip(cat){
-  if(cat==='proprio')
-    return 'Substantivos <strong>próprios</strong> nomeiam seres únicos e começam com letra maiúscula. Ex.: <em>Brasil, Carlos, Amazônia</em>.';
-  return 'Substantivos <strong>comuns</strong> nomeiam qualquer ser de uma categoria. Ex.: <em>país, menino, rio</em>.';
-}
-
-function continueGame(){
-  hideFeedback();
-  if(gs.lives<=0 || gs.round>=gs.totalRounds){ showResult(); return; }
-  loadRound();
-}
-
-// ── History chips ─────────────────────────────────
-function addHistoryChip(word, ok){
-  const list = document.getElementById('history-list');
-  if(list.querySelector('span')) list.innerHTML='';
-  const chip = document.createElement('div');
-  chip.className = 'hist-chip '+(ok?'ok':'bad');
-  chip.textContent = word;
-  list.appendChild(chip);
-}
-
-// ── HUD ───────────────────────────────────────────
-function updateHUD(){
-  document.getElementById('h-score').textContent   = gs.score;
-  document.getElementById('h-correct').textContent = gs.correct;
-  document.getElementById('h-wrong').textContent   = gs.wrong;
-  document.getElementById('h-lives').textContent   = '💚'.repeat(Math.max(0,gs.lives));
-  document.getElementById('h-round').textContent   = `${gs.round}/${gs.totalRounds}`;
-  const pct = Math.min((gs.round/gs.totalRounds)*100,100);
-  document.getElementById('prog-fill').style.width = pct+'%';
-}
-
-// ── Confetti ──────────────────────────────────────
-function spawnConfetti(){
-  const icons=['⭐','🎉','✨','🔥','🌟','💫','🎊','👾'];
-  for(let i=0;i<12;i++){
-    const p=document.createElement('div');
-    p.className='confetti-piece';
-    p.textContent=icons[ri(0,icons.length-1)];
-    p.style.cssText=`left:${ri(10,90)}vw;top:${ri(10,60)}vh;--cx:${(Math.random()-.5)*120}px;--cr:${ri(180,720)}deg;--cd:${0.8+Math.random()*.8}s;--cdl:${i*.06}s`;
-    document.body.appendChild(p);
-    setTimeout(()=>p.remove(),2000);
-  }
-}
-
-// ── Result ────────────────────────────────────────
-function showResult(){
-  const total = gs.round || 1;
-  const pct   = Math.round((gs.correct/total)*100);
-
-  let emoji='😢',title='CONTINUE PRATICANDO!',sub='Tente de novo e vença o Papão!';
-  if(pct>=90){emoji='🏆';title='MESTRE DOS SUBSTANTIVOS!';sub='Papão ficou com fome! Você é demais!';}
-  else if(pct>=70){emoji='🌟';title='MUITO BEM!';sub='Você conhece bem os substantivos!';}
-  else if(pct>=50){emoji='👍';title='BOM TRABALHO!';sub='Está progredindo! Continue assim!';}
-  else if(pct>=30){emoji='🙂';title='VAI MELHORAR!';sub='Revise os conceitos e tente de novo!';}
-
-  document.getElementById('r-emoji').textContent   = emoji;
-  document.getElementById('r-title').textContent   = title;
-  document.getElementById('r-sub').textContent     = sub;
-  document.getElementById('r-score').textContent   = gs.score;
-  document.getElementById('r-corrects').textContent= `${gs.correct}/${total}`;
-  document.getElementById('r-pct-val').textContent = pct+'%';
-  document.getElementById('r-pct-label').textContent=pct+'%';
-  setTimeout(()=>{ document.getElementById('r-fill').style.width=pct+'%'; },300);
-
-  // Words list
-  const wl=document.getElementById('r-words-list');
-  wl.innerHTML='';
-  gs.history.slice(0,10).forEach(h=>{
-    const row=document.createElement('div');
-    row.className='r-word-row';
-    const typeLabel = h.category==='proprio'?'PRÓPRIO':'COMUM';
-    row.innerHTML=`
-      <span class="rw">${h.word}</span>
-      <span class="rtype ${h.category}">${typeLabel}</span>
-      <span>${h.ok?'✅':'❌'}</span>`;
-    wl.appendChild(row);
-  });
-
-  showScreen('result');
-  if(pct>=70) spawnConfetti();
 }
 </script>
 </body>
